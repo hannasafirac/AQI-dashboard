@@ -83,7 +83,7 @@ plt.ylabel("Station")
 st.pyplot(fig)
 
 # Subheader 4: Peta Persebaran AQI
-st.subheader("Persebaran AQI di Seluruh Station")
+st.subheader("Persebaran AQI di Tiap Station Hari Ini")
 
 # Koordinat station
 station_coords = {
@@ -121,7 +121,7 @@ st.write('Informasi kategori AQI')
 st.dataframe(aqi_df, use_container_width=True)
 
 # Buat peta
-m = folium.Map(location=[39.9042, 116.4074], zoom_start=10)  # Lokasi default: Beijing
+m = folium.Map(location=[30, 100], zoom_start=4) 
 
 for station, coords in station_coords.items():
     aqi_level = data_3[data_3['station'] == station]['AQI_level'].values[0]
