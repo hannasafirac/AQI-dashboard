@@ -15,6 +15,7 @@ def load_data():
 data = load_data()
 
 # Sidebar
+
 st.sidebar.title("Filter Data")
 
 # Input tanggal
@@ -34,30 +35,30 @@ st.title("Dashboard Air Quality Index (AQI)")
 
 # Subheader 1: Informasi Suhu, AQI, dan Kategori AQI
 st.subheader("Informasi Hari Ini")
-col1, col2 = st.columns([1, 3])  # Kolom 3 lebih lebar
+col1, col2 = st.columns([1, 3])  # Kolom 2 lebih lebar
 with col1:
     st.metric("AQI", f"{data_1['AQI'].values[0]:.2f}")  # Dua angka di belakang koma
 with col2:
-    st.metric("Kategori AQI", data_1['AQI_level'].values[0])
+    st.metric("Kategori", data_1['AQI_level'].values[0])
 
 # Subheader 2: Line Plot AQI dan Polutan
 st.subheader("Trend 7 Hari Terakhir")
 col1, col2 = st.columns(2)
 with col1:
-    st.write("**AQI**")
-    fig, ax = plt.subplots(figsize=(8, 8))  # Ukuran plot AQI
+    st.write("**Pergerakan AQI**")
+    fig, ax = plt.subplots(figsize=(8, 7))  # Ukuran plot AQI
     sns.lineplot(data=data_2, x='date', y='AQI', ax=ax)
     plt.xticks(rotation=45)
     plt.xlabel('Tanggal')
     st.pyplot(fig)
 
 with col2:
-    st.write("**Polutan**")
+    st.write("**Pergerakan Tingkat Polutan**")
     # Menggunakan st.multiselect untuk memilih lebih dari satu polutan
     pollutants = st.multiselect("Pilih Polutan", ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3'])
     
     if pollutants:  # Jika ada polutan yang dipilih
-        fig, ax = plt.subplots(figsize=(8, 4.5))  # Ukuran plot polutan
+        fig, ax = plt.subplots(figsize=(8, 4))  # Ukuran plot polutan
         for pollutant in pollutants:
             sns.lineplot(data=data_2, x='date', y=pollutant, ax=ax, label=pollutant)
         plt.xticks(rotation=45)
@@ -68,29 +69,20 @@ with col2:
     else:
         st.write("Silakan pilih polutan untuk menampilkan grafik.")
 
-# Subheader 3: Pie Chart Kategori AQI
-st.subheader("Persentase Kategori AQI di Semua Station")
-aqi_level_counts = data_3['AQI_level'].value_counts()
-fig, ax = plt.subplots(figsize=(6, 6))
-ax.pie(aqi_level_counts, labels=aqi_level_counts.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette('pastel'))
-ax.axis('equal')  # Agar pie chart berbentuk lingkaran sempurna
-st.pyplot(fig)
-
-
-# Subheader 4: Bar Plot Tingkat AQI Tiap Station
-st.subheader("Tingkat AQI Tiap Station")
+# Subheader 3: Bar Plot Tingkat AQI Tiap Station
+st.subheader("Tingkat AQI Tiap Station Hari Ini")
 data_3_sorted = data_3.sort_values(by='AQI', ascending=False)
 max_aqi_station = data_3_sorted[data_3_sorted['AQI'] == data_3_sorted['AQI'].max()]
 fig, ax = plt.subplots(figsize=(10, 6))  # Ukuran plot
 # Plot bar biasa dengan warna abu-abu
 sns.barplot(data=data_3_sorted, x='AQI', y='station', color='lightgray', errorbar=None, orient='h')
 # Plot bar yang memiliki AQI maksimum dengan warna mencolok
-sns.barplot(data=max_aqi_station, x='AQI', y='station', color='skyblue', errorbar=None, orient='h')
+sns.barplot(data=max_aqi_station, x='AQI', y='station', color='brown', errorbar=None, orient='h')
 plt.xlabel("AQI")
 plt.ylabel("Station")
 st.pyplot(fig)
 
-# Subheader 5: Peta Persebaran AQI
+# Subheader 4: Peta Persebaran AQI
 st.subheader("Persebaran AQI di Seluruh Station")
 
 # Koordinat station
@@ -119,8 +111,17 @@ aqi_colors = {
     'Hazardous': 'maroon'
 }
 
+aqi_df = pd.DataFrame({
+    'Kategori': ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
+    'Warna': ['Hijau', 'Kuning', 'Oranye', 'Merah', 'Ungu', 'Marun']
+})
+
+
+st.write('Informasi kategori AQI')
+st.dataframe(aqi_df, use_container_width=True)
+
 # Buat peta
-m = folium.Map(location=[30, 100], zoom_start=4)  
+m = folium.Map(location=[39.9042, 116.4074], zoom_start=10)  # Lokasi default: Beijing
 
 for station, coords in station_coords.items():
     aqi_level = data_3[data_3['station'] == station]['AQI_level'].values[0]
