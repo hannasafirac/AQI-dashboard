@@ -8,7 +8,7 @@ import seaborn as sns
 # Load data
 @st.cache_data
 def load_data():
-    data = pd.read_csv('daily_data.csv')
+    data = pd.read_csv('dashboard/daily_data.csv')
     data['date'] = pd.to_datetime(data['date'])
     return data
 
